@@ -1,0 +1,68 @@
+#!/usr/bin/python
+
+# $Id: rst2pseudoxml.py 4564 2006-05-21 20:44:42Z wiemann $
+# Author: David Goodger <goodger@python.org>
+# Copyright: This module has been placed in the public domain.
+
+"""
+A minimal front end to the Docutils Publisher, producing pseudo-XML.
+"""
+try:
+    import locale
+    locale.setlocale(locale.LC_ALL, '')
+except:
+    pass
+
+import sys
+sys.path.append("../urdfdom/urdf_parser_py/src/")
+sys.path.append("../kindoc")
+import kindoc
+
+from docutils.core import Publisher, publish_cmdline, default_description, publish_doctree
+from docutils import io
+
+description = ('Generates pseudo-XML from standalone reStructuredText '
+               'sources (for testing purposes).  ' + default_description)
+
+default_usage = '%prog [options] [<source> [<destination>]]'
+default_description = ('Reads from <source> (default is stdin) and writes to '
+                       '<destination> (default is stdout).  See '
+                       '<http://docutils.sf.net/docs/user/config.html> for '
+                       'the full reference.')
+def apublish_cmdline(reader=None, reader_name='standalone',
+                    parser=None, parser_name='restructuredtext',
+                    writer=None, writer_name='pseudoxml',
+                    settings=None, settings_spec=None,
+                    settings_overrides=None, config_section=None,
+                    enable_exit_status=1, argv=None,
+                    usage=default_usage, description=default_description):
+    """
+    Set up & run a `Publisher` for command-line-based file I/O (input and
+    output file paths taken automatically from the command line).  Return the
+    encoded string output also.
+
+    Parameters: see `publish_programmatically` for the remainder.
+
+    - `argv`: Command-line argument list to use instead of ``sys.argv[1:]``.
+    - `usage`: Usage string, output if there's a problem parsing the command
+      line.
+    - `description`: Program description, output for the "--help" option
+      (along with command-line option descriptions).
+    """
+    writer = None
+    writer_name = 'null'
+    pub = Publisher(reader, parser, writer, settings=settings,
+                    destination_class=io.NullOutput)
+
+    pub.set_components(reader_name, parser_name, writer_name)
+    output = pub.publish(
+        argv, usage, description, settings_spec, settings_overrides,
+        config_section=config_section, enable_exit_status=enable_exit_status)
+    #print pub.document
+    for n in pub.document:
+        print n
+
+    #output = docutils.core.publish_from_doctree(document, ...)
+    return output
+
+doc = publish_cmdline(description=description)

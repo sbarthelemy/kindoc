@@ -1,0 +1,12 @@
+#!/usr/bin/python
+
+from docutils.core import publish_cmdline, default_description
+import sys
+sys.path.append("../urdfdom/urdf_parser_py/src/")
+sys.path.append("../kindoc")
+import kindoc
+
+description = ('Generates (X)HTML documents from standalone reStructuredText '
+               'sources.  ' + default_description)
+
+publish_cmdline(writer_name='html', description=description)
